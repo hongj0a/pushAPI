@@ -8,6 +8,8 @@ import dejay.rnd.villagePush.repository.AlarmRepository;
 import dejay.rnd.villagePush.repository.UserRepository;
 import dejay.rnd.villagePush.util.PushUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/fcm")
 @RequiredArgsConstructor
@@ -64,30 +67,35 @@ public class MessageController {
         List<User> allUsers = userRepository.findAllByMarketingNoticeTypeNotInAndActivityNoticeYn(new int[]{0}, true);
         User sendUser = null;
         Admin sender = null;
-        if (topicType == null) {
+        if ( StringUtils.isEmpty(topicType) ) {
+
             if (userIdx != null) {
                 sendUser = userRepository.findByUserIdx(userIdx);
             }
             if (adminIdx != null) {
                 sender = adminRepository.findByAdminIdx(adminIdx);
             }
+
             for (int i = 0; i < hostIdxes.length; i++) {
                 User findUser = userRepository.findByUserIdx(hostIdxes[i]);
-                messagingService.sendTopicMessage("village_" + findUser.getEmail(), title, message,null);
+                if ( null != findUser ) {
+                    messagingService.sendTopicMessage("village_" + findUser.getUserIdx(), title, message,null);
 
-                Alarm alarm = new Alarm();
-                alarm.setUser(sendUser);
-                alarm.setAdmin(sender);
-                alarm.setReadYn(false);
-                alarm.setContent(message);
-                alarm.setCreateAt(PushUtil.getNowDate());
-                alarm.setTargetIdx(targetIdx);
-                alarm.setType(type);
-                alarm.setHostIdx(findUser.getUserIdx());
+                    Alarm alarm = new Alarm();
+                    alarm.setUser(sendUser);
+                    alarm.setAdmin(sender);
+                    alarm.setReadYn(false);
+                    alarm.setContent(message);
+                    alarm.setCreateAt(PushUtil.getNowDate());
+                    alarm.setTargetIdx(targetIdx);
+                    alarm.setType(type);
+                    alarm.setHostIdx(findUser.getUserIdx());
 
-                alarmRepository.save(alarm);
+                    alarmRepository.save(alarm);
+                }
+
             }
-        } else if (topicType != null) {
+        } else {
             //뭔가 전체알람일 때..
             //전체 유저 사이즈 구해서 알람테이블 insert...
             messagingService.sendTopicMessage( topicType, title, message ,null);
