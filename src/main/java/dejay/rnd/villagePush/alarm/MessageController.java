@@ -42,7 +42,8 @@ public class MessageController {
     @PostMapping("/send")
     public void sendTopicMessage(@RequestParam(value = "userIdx", required = false) Long userIdx,
                                  @RequestParam (value = "adminIdx", required = false) Long adminIdx,
-                                 @RequestParam (value = "hostIdxes") Long[] hostIdxes,
+                                 @RequestParam (value = "hostIdxes", required = false) Long[] hostIdxes,
+                                 @RequestParam (value = "title") String title,
                                  @RequestParam (value = "message") String message,
                                  @RequestParam (value = "targetIdx") Long targetIdx,
                                  @RequestParam (value = "type") int type,
@@ -72,7 +73,7 @@ public class MessageController {
             }
             for (int i = 0; i < hostIdxes.length; i++) {
                 User findUser = userRepository.findByUserIdx(hostIdxes[i]);
-                messagingService.sendTopicMessage(findUser.getEmail(), "개별알람", message,null);
+                messagingService.sendTopicMessage("village_" + findUser.getEmail(), title, message,null);
 
                 Alarm alarm = new Alarm();
                 alarm.setUser(sendUser);
@@ -89,7 +90,7 @@ public class MessageController {
         } else if (topicType != null) {
             //뭔가 전체알람일 때..
             //전체 유저 사이즈 구해서 알람테이블 insert...
-            messagingService.sendTopicMessage( topicType,"전체알람", message ,null);
+            messagingService.sendTopicMessage( topicType, title, message ,null);
 
             for (int i = 0; i < allUsers.size(); i++) {
 
