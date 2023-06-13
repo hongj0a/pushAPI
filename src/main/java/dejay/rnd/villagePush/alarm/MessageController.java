@@ -45,7 +45,7 @@ public class MessageController {
                                  @RequestParam (value = "hostIdxes", required = false) Long[] hostIdxes,
                                  @RequestParam (value = "title") String title,
                                  @RequestParam (value = "message") String message,
-                                 @RequestParam (value = "targetIdx") Long targetIdx,
+                                 @RequestParam (value = "targetIdx", required = false) Long targetIdx,
                                  @RequestParam (value = "type") int type,
                                  @RequestParam (value="topicType", required = false) String topicType) throws Exception {
 
