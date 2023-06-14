@@ -9,6 +9,7 @@ import dejay.rnd.villagePush.repository.UserRepository;
 import dejay.rnd.villagePush.util.PushUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,7 +80,31 @@ public class MessageController {
             for (int i = 0; i < hostIdxes.length; i++) {
                 User findUser = userRepository.findByUserIdx(hostIdxes[i]);
                 if ( null != findUser ) {
-                    messagingService.sendTopicMessage("village_" + findUser.getUserIdx(), title, message,null);
+                    Response response = messagingService.sendTopicMessage("village_" + findUser.getUserIdx(), title, message,null);
+
+                    if (response.code() == 200) {
+                        Alarm alarm = new Alarm();
+                        alarm.setUser(sendUser);
+
+                        alarm.setAdmin(sender);
+                        alarm.setReadYn(false);
+                        alarm.setContent(message);
+                        alarm.setCreateAt(PushUtil.getNowDate());
+                        alarm.setTargetIdx(targetIdx);
+                        alarm.setType(type);
+                        alarm.setHostIdx(findUser.getUserIdx());
+
+                        alarmRepository.save(alarm);
+                    }
+                }
+            }
+        } else {
+            //뭔가 전체알람일 때..
+            //전체 유저 사이즈 구해서 알람테이블 insert...
+            Response response = messagingService.sendTopicMessage( topicType, title, message ,null);
+
+            if (response.code() == 200) {
+                for (int i = 0; i < allUsers.size(); i++) {
 
                     Alarm alarm = new Alarm();
                     alarm.setUser(sendUser);
@@ -89,32 +114,11 @@ public class MessageController {
                     alarm.setCreateAt(PushUtil.getNowDate());
                     alarm.setTargetIdx(targetIdx);
                     alarm.setType(type);
-                    alarm.setHostIdx(findUser.getUserIdx());
+                    alarm.setHostIdx(allUsers.get(i).getUserIdx());
 
                     alarmRepository.save(alarm);
                 }
-
             }
-        } else {
-            //뭔가 전체알람일 때..
-            //전체 유저 사이즈 구해서 알람테이블 insert...
-            messagingService.sendTopicMessage( topicType, title, message ,null);
-
-            for (int i = 0; i < allUsers.size(); i++) {
-
-                Alarm alarm = new Alarm();
-                alarm.setUser(sendUser);
-                alarm.setAdmin(sender);
-                alarm.setReadYn(false);
-                alarm.setContent(message);
-                alarm.setCreateAt(PushUtil.getNowDate());
-                alarm.setTargetIdx(targetIdx);
-                alarm.setType(type);
-                alarm.setHostIdx(allUsers.get(i).getUserIdx());
-
-                alarmRepository.save(alarm);
-            }
-
         }
 
     }

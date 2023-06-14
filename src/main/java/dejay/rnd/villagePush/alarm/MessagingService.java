@@ -22,7 +22,7 @@ public class MessagingService {
 
     private final String API_URL = "https://fcm.googleapis.com/v1/projects/village-385001/messages:send";
 
-    public void sendTopicMessage(String topic, String title, String body, String image) throws Exception {
+    public Response sendTopicMessage(String topic, String title, String body, String image) throws Exception {
 
         String message = makeMessage(topic, title, body);
         OkHttpClient client = new OkHttpClient();
@@ -34,9 +34,8 @@ public class MessagingService {
                 .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
                 .build();
 
-        Response response = client.newCall(request).execute();
+        return client.newCall(request).execute();
 
-        log.info(response.body().string());
     }
     private String makeMessage(String topic, String title, String body) throws JsonProcessingException {
         FcmMessage fcmMessage = FcmMessage.builder()
