@@ -9,7 +9,6 @@ import dejay.rnd.villagePush.repository.UserRepository;
 import dejay.rnd.villagePush.util.PushUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,9 +81,9 @@ public class MessageController {
             for (int i = 0; i < hostIdxes.length; i++) {
                 User findUser = userRepository.findByUserIdx(hostIdxes[i]);
                 if ( null != findUser ) {
-                    Response response = messagingService.sendTopicMessage("village_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
+                    int respCode = messagingService.sendTopicMessage("village_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
 
-                    if (response.code() == 200) {
+                    if (respCode == 200) {
                         Alarm alarm = new Alarm();
                         alarm.setUser(sendUser);
 
@@ -103,9 +102,9 @@ public class MessageController {
         } else {
             //뭔가 전체알람일 때..
             //전체 유저 사이즈 구해서 알람테이블 insert...
-            Response response = messagingService.sendTopicMessage( topicType, title, message ,targetIdx, targetIdx2, type,null);
+            int respCode = messagingService.sendTopicMessage( topicType, title, message ,targetIdx, targetIdx2, type,null);
 
-            if (response.code() == 200) {
+            if (respCode == 200) {
                 for (int i = 0; i < allUsers.size(); i++) {
 
                     Alarm alarm = new Alarm();
