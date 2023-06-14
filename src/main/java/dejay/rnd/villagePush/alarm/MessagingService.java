@@ -22,9 +22,9 @@ public class MessagingService {
 
     private final String API_URL = "https://fcm.googleapis.com/v1/projects/village-385001/messages:send";
 
-    public Response sendTopicMessage(String topic, String title, String body, String image) throws Exception {
+    public Response sendTopicMessage(String topic, String title, String body, Long id, String id2, String type, String image) throws Exception {
 
-        String message = makeMessage(topic, title, body);
+        String message = makeMessage(topic, title, body, id, id2, type);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
@@ -37,7 +37,7 @@ public class MessagingService {
         return client.newCall(request).execute();
 
     }
-    private String makeMessage(String topic, String title, String body) throws JsonProcessingException {
+    private String makeMessage(String topic, String title, String body, Long id, String id2, String type) throws JsonProcessingException {
         FcmMessage fcmMessage = FcmMessage.builder()
                   .message(FcmMessage.Message.builder()
                         .topic(topic)
@@ -47,7 +47,13 @@ public class MessagingService {
                                 .body(body)
                                 .image("https://www.iconpacks.net/icons/1/free-home-icon-163-thumb.png")
                                 .build()
-                        ).apns(
+                        ).data(
+                                FcmMessage.Data.builder()
+                                        .id1(String.valueOf(id))
+                                        .id2(id2)
+                                        .type(type)
+                                        .build()
+                          ).apns(
                             FcmMessage.Apns.builder()
                                 .payload(
                                         FcmMessage.Payload.builder()
