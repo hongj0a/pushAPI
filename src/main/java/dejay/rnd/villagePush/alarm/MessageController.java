@@ -9,6 +9,7 @@ import dejay.rnd.villagePush.repository.UserRepository;
 import dejay.rnd.villagePush.util.PushUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +50,8 @@ public class MessageController {
                                  @RequestParam (value = "title") String title,
                                  @RequestParam (value = "message") String message,
                                  @RequestParam (value = "targetIdx", required = false) Long targetIdx,
-                                 @RequestParam (value = "type") int type,
+                                 @RequestParam (value= "targetIdx2", required = false) String targetIdx2,
+                                 @RequestParam (value = "type") String type,
                                  @RequestParam (value="topicType", required = false) String topicType) throws Exception {
 
         /**
@@ -67,6 +69,7 @@ public class MessageController {
         List<User> allUsers = userRepository.findAllByMarketingNoticeTypeNotInAndActivityNoticeYn(new int[]{0}, true);
         User sendUser = null;
         Admin sender = null;
+        if (targetIdx2 == null)  {targetIdx2 = "0";};
         if ( StringUtils.isEmpty(topicType) ) {
 
             if (userIdx != null) {
@@ -79,9 +82,9 @@ public class MessageController {
             for (int i = 0; i < hostIdxes.length; i++) {
                 User findUser = userRepository.findByUserIdx(hostIdxes[i]);
                 if ( null != findUser ) {
-                    int respCode = messagingService.sendTopicMessage("village_" + findUser.getUserIdx(), title, message,null);
+                    Response response = messagingService.sendTopicMessage("village_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
 
-                    if (respCode == 200) {
+                    if (response.code() == 200) {
                         Alarm alarm = new Alarm();
                         alarm.setUser(sendUser);
 
@@ -89,8 +92,8 @@ public class MessageController {
                         alarm.setReadYn(false);
                         alarm.setContent(message);
                         alarm.setCreateAt(PushUtil.getNowDate());
-                        alarm.setTargetIdx(targetIdx);
-                        alarm.setType(type);
+                        alarm.setTargetIdx(Long.valueOf(targetIdx));
+                        alarm.setType(Integer.valueOf(type));
                         alarm.setHostIdx(findUser.getUserIdx());
 
                         alarmRepository.save(alarm);
@@ -100,9 +103,9 @@ public class MessageController {
         } else {
             //뭔가 전체알람일 때..
             //전체 유저 사이즈 구해서 알람테이블 insert...
-            int respCode = messagingService.sendTopicMessage( topicType, title, message ,null);
+            Response response = messagingService.sendTopicMessage( topicType, title, message ,targetIdx, targetIdx2, type,null);
 
-            if (respCode == 200) {
+            if (response.code() == 200) {
                 for (int i = 0; i < allUsers.size(); i++) {
 
                     Alarm alarm = new Alarm();
@@ -111,8 +114,8 @@ public class MessageController {
                     alarm.setReadYn(false);
                     alarm.setContent(message);
                     alarm.setCreateAt(PushUtil.getNowDate());
-                    alarm.setTargetIdx(targetIdx);
-                    alarm.setType(type);
+                    alarm.setTargetIdx(Long.valueOf(targetIdx));
+                    alarm.setType(Integer.valueOf(type));
                     alarm.setHostIdx(allUsers.get(i).getUserIdx());
 
                     alarmRepository.save(alarm);

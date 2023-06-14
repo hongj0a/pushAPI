@@ -44,6 +44,7 @@ public class FcmMessage {
         private String topic;
         private Apns apns;
         private Android android;
+        private Data data;
     }
 
     @Builder
@@ -54,6 +55,15 @@ public class FcmMessage {
         private String body;
         private String image;
 
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @Getter
+    public static class Data{
+        private String id1;
+        private String id2;
+        private String type;
     }
 
     @Builder
