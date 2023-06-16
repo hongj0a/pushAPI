@@ -10,7 +10,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
 
     User findByUserIdx(Long userIdx);
-    List<User> findAllByMarketingNoticeTypeNotInAndActivityNoticeYn(int[] noticeType, boolean activityYn);
+    List<User> findAllByMarketingNoticeYnAndActivityNoticeYn(boolean marketingYn, boolean activityYn);
 
     User getOne(Long userIdx);
 }

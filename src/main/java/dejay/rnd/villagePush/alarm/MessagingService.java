@@ -9,6 +9,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -22,62 +23,73 @@ public class MessagingService {
 
     private final String API_URL = "https://fcm.googleapis.com/v1/projects/village-385001/messages:send";
 
-    public int sendTopicMessage(String topic, String title, String body, Long id, String id2, String type, String image) throws Exception {
+    public void sendTopicMessage(String topic, String title, String body, Long id, String id2, String type, String image) throws Exception {
 
         String message = makeMessage(topic, title, body, id, id2, type);
-        OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
-        Request request = new Request.Builder()
-                .url(API_URL)
-                .post(requestBody)
-                .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
-                .build();
+        System.out.println("message = " + message);
 
-        int respCode = 0;
-        Response resp = client.newCall(request).execute();
+        if ( StringUtils.isEmpty(message) ) {
+            log.info("topic {}" ,topic);
+        } else {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(API_URL)
+                    .post(requestBody)
+                    .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
+                    .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
+                    .build();
 
-        respCode = resp.code();
-        resp.close();
+            Response resp = client.newCall(request).execute();
 
-        return respCode;
+            resp.close();
+        }
 
     }
     private String makeMessage(String topic, String title, String body, Long id, String id2, String type) throws JsonProcessingException {
-        FcmMessage fcmMessage = FcmMessage.builder()
-                  .message(FcmMessage.Message.builder()
-                        .topic(topic)
-                        .notification(
-                            FcmMessage.Notification.builder()
-                                .title(title)
-                                .body(body)
-                                .image("https://www.iconpacks.net/icons/1/free-home-icon-163-thumb.png")
-                                .build()
-                        ).data(
-                                FcmMessage.Data.builder()
-                                        .id1(String.valueOf(id))
-                                        .id2(id2)
-                                        .type(type)
-                                        .build()
-                          ).apns(
-                            FcmMessage.Apns.builder()
-                                .payload(
-                                        FcmMessage.Payload.builder()
-                                                .aps(FcmMessage.Aps.builder().sound("default").build())
-                                                .build()
-                                )
-                                .build()
-                        ).android(
-                                FcmMessage.Android.builder()
-                                        .priority("high")
-                                        .build()
-                          )
-                        .build())
-                .validateOnly(false)
-                .build();
-        log.info(objectMapper.writeValueAsString(fcmMessage));
-        return objectMapper.writeValueAsString(fcmMessage);
-
+        String result = "";
+        if (topic.contains("ios")) {
+           FcmIOSMessage fcmMessage = FcmIOSMessage.builder()
+                    .message(FcmIOSMessage.Message.builder()
+                            .topic(topic)
+                            .notification(
+                                    FcmIOSMessage.Notification.builder()
+                                            .title(title)
+                                            .body(body)
+                                            .build()
+                            )
+                            .content_available(true)
+                            .data(
+                                    FcmIOSMessage.Data.builder()
+                                            .id1(String.valueOf(id))
+                                            .id2(id2)
+                                            .type(type)
+                                            .build()
+                            )
+                            .build())
+                    .validateOnly(false)
+                    .build();
+            log.info(objectMapper.writeValueAsString(fcmMessage));
+            result = objectMapper.writeValueAsString(fcmMessage);
+        } else if (topic.contains("android")) {
+            FcmMessage fcmMessage = FcmMessage.builder()
+                    .message(FcmMessage.Message.builder()
+                            .topic(topic)
+                            .data(
+                                    FcmMessage.Data.builder()
+                                            .title(title)
+                                            .body(body)
+                                            .id1(String.valueOf(id))
+                                            .id2(id2)
+                                            .type(type)
+                                            .build()
+                            ).build())
+                    .validateOnly(false)
+                    .build();
+            log.info(objectMapper.writeValueAsString(fcmMessage));
+            result = objectMapper.writeValueAsString(fcmMessage);
+        }
+        return result;
     }
 
     private String getAccessToken() throws Exception {

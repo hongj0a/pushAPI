@@ -65,10 +65,15 @@ public class MessageController {
         //전체 유저 테이블에 넣기
         //단 마케팅, 활동알림 동의 한 사람만 구해서
 
-        List<User> allUsers = userRepository.findAllByMarketingNoticeTypeNotInAndActivityNoticeYn(new int[]{0}, true);
+        List<User> allUsers = userRepository.findAllByMarketingNoticeYnAndActivityNoticeYn(true, true);
         User sendUser = null;
         Admin sender = null;
-        if (targetIdx2 == null)  {targetIdx2 = "0";};
+        if (targetIdx2 == null) {
+            targetIdx2 = "0";
+            if (type.equals("50")) {
+                targetIdx2 = String.valueOf(userIdx);
+            }
+        }
         if ( StringUtils.isEmpty(topicType) ) {
 
             if (userIdx != null) {
@@ -81,44 +86,42 @@ public class MessageController {
             for (int i = 0; i < hostIdxes.length; i++) {
                 User findUser = userRepository.findByUserIdx(hostIdxes[i]);
                 if ( null != findUser ) {
-                    int respCode = messagingService.sendTopicMessage("village_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
-
-                    if (respCode == 200) {
-                        Alarm alarm = new Alarm();
-                        alarm.setUser(sendUser);
-
-                        alarm.setAdmin(sender);
-                        alarm.setReadYn(false);
-                        alarm.setContent(message);
-                        alarm.setCreateAt(PushUtil.getNowDate());
-                        alarm.setTargetIdx(Long.valueOf(targetIdx));
-                        alarm.setType(Integer.valueOf(type));
-                        alarm.setHostIdx(findUser.getUserIdx());
-
-                        alarmRepository.save(alarm);
-                    }
-                }
-            }
-        } else {
-            //뭔가 전체알람일 때..
-            //전체 유저 사이즈 구해서 알람테이블 insert...
-            int respCode = messagingService.sendTopicMessage( topicType, title, message ,targetIdx, targetIdx2, type,null);
-
-            if (respCode == 200) {
-                for (int i = 0; i < allUsers.size(); i++) {
+                    messagingService.sendTopicMessage("village_android_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
+                    //ios 테스트 가능할 때
+                    //messagingService.sendTopicMessage("village_ios_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
 
                     Alarm alarm = new Alarm();
                     alarm.setUser(sendUser);
+
                     alarm.setAdmin(sender);
                     alarm.setReadYn(false);
                     alarm.setContent(message);
                     alarm.setCreateAt(PushUtil.getNowDate());
                     alarm.setTargetIdx(Long.valueOf(targetIdx));
                     alarm.setType(Integer.valueOf(type));
-                    alarm.setHostIdx(allUsers.get(i).getUserIdx());
+                    alarm.setHostIdx(findUser.getUserIdx());
 
                     alarmRepository.save(alarm);
                 }
+            }
+        } else {
+            //뭔가 전체알람일 때..
+            //전체 유저 사이즈 구해서 알람테이블 insert...
+            messagingService.sendTopicMessage( topicType, title, message ,targetIdx, targetIdx2, type,null);
+
+            for (int i = 0; i < allUsers.size(); i++) {
+
+                Alarm alarm = new Alarm();
+                alarm.setUser(sendUser);
+                alarm.setAdmin(sender);
+                alarm.setReadYn(false);
+                alarm.setContent(message);
+                alarm.setCreateAt(PushUtil.getNowDate());
+                alarm.setTargetIdx(Long.valueOf(targetIdx));
+                alarm.setType(Integer.valueOf(type));
+                alarm.setHostIdx(allUsers.get(i).getUserIdx());
+
+                alarmRepository.save(alarm);
             }
         }
 
