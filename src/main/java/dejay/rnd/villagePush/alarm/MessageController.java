@@ -98,6 +98,7 @@ public class MessageController {
                     alarm.setContent(message);
                     alarm.setCreateAt(PushUtil.getNowDate());
                     alarm.setTargetIdx(Long.valueOf(targetIdx));
+                    alarm.setTargetIdx2(Long.valueOf(targetIdx2));
                     alarm.setType(Integer.valueOf(type));
                     alarm.setHostIdx(findUser.getUserIdx());
 
@@ -118,6 +119,7 @@ public class MessageController {
                 alarm.setContent(message);
                 alarm.setCreateAt(PushUtil.getNowDate());
                 alarm.setTargetIdx(Long.valueOf(targetIdx));
+                alarm.setTargetIdx2(Long.valueOf(targetIdx2));
                 alarm.setType(Integer.valueOf(type));
                 alarm.setHostIdx(allUsers.get(i).getUserIdx());
 
