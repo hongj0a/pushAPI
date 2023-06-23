@@ -1,4 +1,4 @@
-package dejay.rnd.villagePush.domain.domain;
+package dejay.rnd.villagePush.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -15,39 +15,29 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "block_post")
+@Table(name = "evaluation_items")
 @Entity
 @DynamicInsert
-public class BlockPost {
+public class EvaluationItems {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column (name = "block_idx")
-    private Long blockIdx;
+    @Column (name = "items_idx")
+    private Long itemsIdx;
 
     @ManyToOne
     @NotNull
-    @JoinColumn (name = "rentalIdx")
-    private Rental rental;
+    @JoinColumn (name = "adminIdx")
+    private Admin admin;
 
-    @ManyToOne
-    @NotNull
-    @JoinColumn (name = "categoryIdx")
-    private Category category;
-
-    @Column
-    private String reason;
-
-    @Column (name = "reporter_idx")
-    private Long reporterIdx;
+    @Column( length = 50000)
+    private String comment;
 
     @ColumnDefault("0")
-    @Column (name = "processing_status")
-    private Integer processingStatus;
+    @Column (name = "delete_yn")
+    private boolean deleteYn;
 
-    @Column (name = "processing_content", length = 50000)
-    private String processingContent;
-
+    @NotNull
     @Temporal(value = TemporalType.TIMESTAMP)
     @CreationTimestamp
     @Column (name = "create_at")
@@ -56,17 +46,13 @@ public class BlockPost {
     @Column (name = "update_at")
     private Date updateAt;
 
-    @ColumnDefault("0")
-    @Column (name = "delete_yn")
-    private boolean deleteYn;
-
     @Column (name = "delete_at")
     private Date deleteAt;
 
     @Column(length = 50000)
     private String updator;
 
-    @Column (name = "complete_at")
-    private Date completeAt;
+    @Column (name = "order_num")
+    private Integer orderNum;
 
 }

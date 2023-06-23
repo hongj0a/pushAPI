@@ -1,6 +1,7 @@
-package dejay.rnd.villagePush.domain.domain;
+package dejay.rnd.villagePush.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
@@ -13,23 +14,30 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "batch_log")
+@Table(name = "user_item")
 @Entity
 @DynamicInsert
-public class BatchLog {
+public class UserItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column (name = "log_idx")
-    private Long logIdx;
+    @Column (name = "user_item_idx")
+    private Long userItemIdx;
 
-    @Column
-    private String method;
+    @ManyToOne
+    @NotNull
+    @JoinColumn (name = "userIdx")
+    private User user;
 
+    @ManyToOne
+    @NotNull
+    @JoinColumn (name = "itemIdx")
+    private EvaluationItems evaluationItems;
+
+    @NotNull
     @Temporal(value = TemporalType.TIMESTAMP)
     @CreationTimestamp
     @Column (name = "create_at")
     private Date createAt;
-
 
 }

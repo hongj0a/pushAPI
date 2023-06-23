@@ -1,7 +1,6 @@
-package dejay.rnd.villagePush.domain.domain;
+package dejay.rnd.villagePush.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
@@ -14,28 +13,23 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "chat_image")
+@Table(name = "batch_log")
 @Entity
 @DynamicInsert
-public class ChatImage {
+public class BatchLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column (name = "image_idx")
-    private Long imageIdx;
+    @Column (name = "log_idx")
+    private Long logIdx;
 
-    @ManyToOne
-    @NotNull
-    @JoinColumn (name = "chatContentIdx")
-    private ChatContent chatContent;
-
-    @Column (name = "image_url")
-    @Lob
-    private String imageUrl;
+    @Column
+    private String method;
 
     @Temporal(value = TemporalType.TIMESTAMP)
     @CreationTimestamp
     @Column (name = "create_at")
     private Date createAt;
+
 
 }

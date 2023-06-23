@@ -1,4 +1,4 @@
-package dejay.rnd.villagePush.domain.domain;
+package dejay.rnd.villagePush.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -15,27 +15,28 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "evaluation_items")
+@Table(name = "user_memo")
 @Entity
 @DynamicInsert
-public class EvaluationItems {
+public class UserMemo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column (name = "items_idx")
-    private Long itemsIdx;
+    @Column (name ="memo_idx")
+    private Long memoIdx;
+
+    @ManyToOne
+    @NotNull
+    @JoinColumn (name = "userIdx")
+    private User user;
 
     @ManyToOne
     @NotNull
     @JoinColumn (name = "adminIdx")
     private Admin admin;
 
-    @Column( length = 50000)
-    private String comment;
-
-    @ColumnDefault("0")
-    @Column (name = "delete_yn")
-    private boolean deleteYn;
+    @Column(length = 5000)
+    private String memo;
 
     @NotNull
     @Temporal(value = TemporalType.TIMESTAMP)
@@ -43,16 +44,11 @@ public class EvaluationItems {
     @Column (name = "create_at")
     private Date createAt;
 
-    @Column (name = "update_at")
-    private Date updateAt;
+    @ColumnDefault("0")
+    @Column (name = "delete_yn")
+    private boolean deleteYn;
 
     @Column (name = "delete_at")
     private Date deleteAt;
-
-    @Column(length = 50000)
-    private String updator;
-
-    @Column (name = "order_num")
-    private Integer orderNum;
 
 }
