@@ -86,7 +86,16 @@ public class MessageController {
             for (int i = 0; i < hostIdxes.length; i++) {
                 User findUser = userRepository.findByUserIdx(hostIdxes[i]);
                 if ( null != findUser ) {
-                    messagingService.sendTopicMessage("village_android_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
+                    if (type.equals("50")) {
+                        if (findUser.isChatNoticeYn() == true) {
+                            messagingService.sendTopicMessage("village_android_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
+                        }
+                    } else {
+                        if (findUser.isActivityNoticeYn() == true) {
+                            messagingService.sendTopicMessage("village_android_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
+                        }
+                    }
+
                     //ios 테스트 가능할 때
                     //messagingService.sendTopicMessage("village_ios_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
 
