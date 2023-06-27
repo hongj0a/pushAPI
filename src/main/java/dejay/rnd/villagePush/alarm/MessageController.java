@@ -74,6 +74,13 @@ public class MessageController {
                 targetIdx2 = String.valueOf(userIdx);
             }
         }
+        if (targetIdx == null) {
+            targetIdx = Long.valueOf(0);
+        }
+
+        if (type == null) {
+            type = String.valueOf(0);
+        }
         if ( StringUtils.isEmpty(topicType) ) {
 
             if (userIdx != null) {
@@ -108,6 +115,7 @@ public class MessageController {
                     alarm.setCreateAt(PushUtil.getNowDate());
                     alarm.setTargetIdx(Long.valueOf(targetIdx));
                     alarm.setTargetIdx2(Long.valueOf(targetIdx2));
+                    alarm.setUser(sendUser);
                     alarm.setType(Integer.valueOf(type));
                     alarm.setHostIdx(findUser.getUserIdx());
 
@@ -119,20 +127,22 @@ public class MessageController {
             //전체 유저 사이즈 구해서 알람테이블 insert...
             messagingService.sendTopicMessage( topicType, title, message ,targetIdx, targetIdx2, type,null);
 
-            for (int i = 0; i < allUsers.size(); i++) {
+            if (topicType.contains("android")) {
+                for (int i = 0; i < allUsers.size(); i++) {
 
-                Alarm alarm = new Alarm();
-                alarm.setUser(sendUser);
-                alarm.setAdmin(sender);
-                alarm.setReadYn(false);
-                alarm.setContent(message);
-                alarm.setCreateAt(PushUtil.getNowDate());
-                alarm.setTargetIdx(Long.valueOf(targetIdx));
-                alarm.setTargetIdx2(Long.valueOf(targetIdx2));
-                alarm.setType(Integer.valueOf(type));
-                alarm.setHostIdx(allUsers.get(i).getUserIdx());
+                    Alarm alarm = new Alarm();
+                    alarm.setUser(sendUser);
+                    alarm.setAdmin(sender);
+                    alarm.setReadYn(false);
+                    alarm.setContent(message);
+                    alarm.setCreateAt(PushUtil.getNowDate());
+                    alarm.setTargetIdx(Long.valueOf(targetIdx));
+                    alarm.setTargetIdx2(Long.valueOf(targetIdx2));
+                    alarm.setType(Integer.valueOf(type));
+                    alarm.setHostIdx(allUsers.get(i).getUserIdx());
 
-                alarmRepository.save(alarm);
+                    alarmRepository.save(alarm);
+                }
             }
         }
 
