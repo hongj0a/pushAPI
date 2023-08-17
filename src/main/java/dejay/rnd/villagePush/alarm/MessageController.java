@@ -7,9 +7,9 @@ import dejay.rnd.villagePush.repository.AdminRepository;
 import dejay.rnd.villagePush.repository.AlarmRepository;
 import dejay.rnd.villagePush.repository.UserRepository;
 import dejay.rnd.villagePush.util.PushUtil;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,7 +68,8 @@ public class MessageController {
         List<User> allUsers = userRepository.findAllByMarketingNoticeYnAndActivityNoticeYn(true, true);
         User sendUser = null;
         Admin sender = null;
-        if (targetIdx2 == null) {
+        if (StringUtils.isEmpty(targetIdx2)) {
+            System.out.println("MessageController.sendTopicMessage");
             targetIdx2 = "0";
             if (type.equals("50")) {
                 targetIdx2 = String.valueOf(userIdx);
@@ -96,15 +97,18 @@ public class MessageController {
                     if (type.equals("50")) {
                         if (findUser.isChatNoticeYn() == true) {
                             messagingService.sendTopicMessage("village_android_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
+                            messagingService.sendTopicMessage("village_ios_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
                         }
                     } else {
                         if (findUser.isActivityNoticeYn() == true) {
                             messagingService.sendTopicMessage("village_android_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
+                            messagingService.sendTopicMessage("village_ios_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
                         }
                     }
 
+                    System.out.println("targetIdx2 = " + targetIdx2);
                     //ios 테스트 가능할 때
-                    //messagingService.sendTopicMessage("village_ios_" + findUser.getUserIdx(), title, message, targetIdx, targetIdx2, type, null);
+
 
                     Alarm alarm = new Alarm();
                     alarm.setUser(sendUser);
@@ -120,6 +124,7 @@ public class MessageController {
                     alarm.setHostIdx(findUser.getUserIdx());
 
                     alarmRepository.save(alarm);
+
                 }
             }
         } else {
